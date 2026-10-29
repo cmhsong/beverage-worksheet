@@ -226,12 +226,11 @@
     margin: 0; color: var(--ink); letter-spacing: -0.3px;
   }
   .edit-menu-btn {
-    display: none; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 6px;
     padding: 10px 14px; background: var(--cat-tint); color: var(--cat-color);
     border: 2px solid var(--cat-color); border-radius: 12px;
     font-family: var(--font-display); font-size: 14px; cursor: pointer;
   }
-  body.edit-mode .edit-menu-btn { display: inline-flex; }
   .edit-menu-btn:hover { background: var(--cat-color); color: #fff; }
 
   .section-title {
@@ -549,6 +548,44 @@
   }
   :root[data-theme="dark"] .header-action.safety { background: #3E2318; color: #F2A678; border-color: #D97B4A; }
 
+  .header-action.edit { color: #7D4F2E; border-color: #7D4F2E; background: #F2E3CF; }
+  .header-action.edit:hover { background: #7D4F2E; color: #fff; }
+  .header-action.edit .edit-on { display: none; }
+  body.edit-mode .header-action.edit { background: #7D4F2E; color: #fff; }
+  body.edit-mode .header-action.edit .edit-off { display: none; }
+  body.edit-mode .header-action.edit .edit-on { display: inline; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .header-action.edit { background: #3A2A1E; color: #E3B07C; border-color: #D9A878; }
+    :root:not([data-theme="light"]) body.edit-mode .header-action.edit { background: #D9A878; color: #1C1813; border-color: #D9A878; }
+  }
+  :root[data-theme="dark"] .header-action.edit { background: #3A2A1E; color: #E3B07C; border-color: #D9A878; }
+  :root[data-theme="dark"] body.edit-mode .header-action.edit { background: #D9A878; color: #1C1813; border-color: #D9A878; }
+
+  .edit-hint {
+    margin: 14px 0 0;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #F2E3CF 0%, #FFF2DC 100%);
+    color: #7D4F2E;
+    border: 2px dashed #7D4F2E;
+    border-radius: var(--radius);
+    font-size: 15px; font-weight: 600; line-height: 1.5;
+    text-align: center;
+  }
+  .edit-hint[hidden] { display: none; }
+  .edit-hint strong { font-family: var(--font-display); font-size: 16px; }
+  .edit-hint .hint-chip {
+    display: inline-block; padding: 1px 8px;
+    background: var(--surface); border: 1.5px solid #7D4F2E;
+    border-radius: 8px; font-family: var(--font-display);
+    font-size: 13px; margin: 0 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .edit-hint { background: #342A1E; color: #E3B07C; border-color: #D9A878; }
+    :root:not([data-theme="light"]) .edit-hint .hint-chip { background: var(--surface); color: #E3B07C; border-color: #D9A878; }
+  }
+  :root[data-theme="dark"] .edit-hint { background: #342A1E; color: #E3B07C; border-color: #D9A878; }
+  :root[data-theme="dark"] .edit-hint .hint-chip { background: var(--surface); color: #E3B07C; border-color: #D9A878; }
+
   /* Safety page */
   .safety-page {
     background: var(--surface); border: 2.5px solid var(--line);
@@ -691,6 +728,14 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 L4 6 v6 c0 5 4 9 8 10 c4-1 8-5 8-10 V6 Z"/><path d="M12 8 v4"/><circle cx="12" cy="15" r="1" fill="currentColor"/></svg>
         안전 수칙 보기
       </button>
+      <button class="header-action edit" type="button" id="editHeaderBtn" aria-pressed="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span class="edit-off">메뉴 편집</span>
+        <span class="edit-on">편집 완료</span>
+      </button>
+    </div>
+    <div class="edit-hint" id="editHint" hidden>
+      <strong>🖊 편집 모드</strong> &nbsp;·&nbsp; 메뉴 카드의 <span class="hint-chip">✎</span> 아이콘으로 그 메뉴를 수정하거나, 그리드 끝의 <span class="hint-chip">+ 메뉴 추가</span> 로 새 메뉴를 만들 수 있어요.
     </div>
   </header>
 
@@ -2345,15 +2390,21 @@
     applyTheme(isDark ? 'light' : 'dark');
   });
 
+  const editHeaderBtn = document.getElementById('editHeaderBtn');
+  const editHintEl = document.getElementById('editHint');
   function applyEditMode(on) {
     document.body.classList.toggle('edit-mode', !!on);
     editTog.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (editHeaderBtn) editHeaderBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (editHintEl) editHintEl.hidden = !on;
     saveEditMode(!!on);
   }
   applyEditMode(loadEditMode());
-  editTog.addEventListener('click', () => {
+  function toggleEditMode() {
     applyEditMode(!document.body.classList.contains('edit-mode'));
-  });
+  }
+  editTog.addEventListener('click', toggleEditMode);
+  if (editHeaderBtn) editHeaderBtn.addEventListener('click', toggleEditMode);
 
   /* ============ Init ============ */
   setCatVars(document.documentElement, currentCat);
