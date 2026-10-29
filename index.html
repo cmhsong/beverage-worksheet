@@ -1,0 +1,1241 @@
+<title>음료 조제 학습지</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+
+<style>
+  /* layout: title header → category tabs (color-coded) → beverage grid cards → recipe view with pictogram ingredients (fill-level cups, count badges) and numbered checkable steps */
+
+  :root {
+    /* paper-warm neutrals + vivid, distinct category colors — pictograms carry info so surfaces stay quiet */
+    --bg: #F2EDE2;
+    --surface: #FFFFFF;
+    --surface-2: #FAF4E7;
+    --ink: #2A231D;
+    --ink-soft: #6E6155;
+    --ink-faint: #A69A8C;
+    --line: #DED1BD;
+    --line-soft: #EEE4D1;
+    --accent: #7D4F2E;
+    --focus: #D97757;
+    --shadow: 0 2px 0 rgba(0,0,0,.04), 0 8px 24px rgba(79,52,25,.08);
+    --shadow-lift: 0 4px 0 rgba(0,0,0,.04), 0 12px 32px rgba(79,52,25,.14);
+
+    --coffee: #6B4226;
+    --coffee-tint: #F2E3CF;
+    --tea: #3B7A4F;
+    --tea-tint: #DBECDF;
+    --ade: #D88A1C;
+    --ade-tint: #FBE9C3;
+    --smoothie: #BE4876;
+    --smoothie-tint: #F8D7E2;
+
+    --water: #94C9E6;
+    --milk: #FFF9E2;
+    --coffee-liquid: #4A2A14;
+    --tea-green: #8EC56A;
+    --tea-amber: #D59238;
+    --ade-yellow: #F4CE3F;
+    --ade-pink: #F08BB3;
+    --strawberry: #E0516D;
+    --blueberry: #7B5EB1;
+    --mango: #F2B33E;
+
+    --radius: 18px;
+    --radius-sm: 10px;
+    --radius-lg: 28px;
+    --font-display: 'Jua', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+    --font-body: 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, sans-serif;
+
+    --cat-color: var(--coffee);
+    --cat-tint: var(--coffee-tint);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1C1813;
+      --surface: #2A241D;
+      --surface-2: #342C24;
+      --ink: #F6EFE3;
+      --ink-soft: #BDB1A1;
+      --ink-faint: #85796C;
+      --line: #4A3E31;
+      --line-soft: #3A3127;
+      --accent: #E3B07C;
+      --focus: #EBA07F;
+      --shadow: 0 2px 0 rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+      --shadow-lift: 0 4px 0 rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.5);
+
+      --coffee: #D9A878;
+      --coffee-tint: #3A2A1E;
+      --tea: #8DC66E;
+      --tea-tint: #253324;
+      --ade: #F2B44D;
+      --ade-tint: #3B2E1A;
+      --smoothie: #ED92B0;
+      --smoothie-tint: #3C2531;
+
+      --milk: #F2EADC;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1C1813;
+    --surface: #2A241D;
+    --surface-2: #342C24;
+    --ink: #F6EFE3;
+    --ink-soft: #BDB1A1;
+    --ink-faint: #85796C;
+    --line: #4A3E31;
+    --line-soft: #3A3127;
+    --accent: #E3B07C;
+    --focus: #EBA07F;
+    --shadow: 0 2px 0 rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+    --shadow-lift: 0 4px 0 rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.5);
+    --coffee: #D9A878;
+    --coffee-tint: #3A2A1E;
+    --tea: #8DC66E;
+    --tea-tint: #253324;
+    --ade: #F2B44D;
+    --ade-tint: #3B2E1A;
+    --smoothie: #ED92B0;
+    --smoothie-tint: #3C2531;
+    --milk: #F2EADC;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { font-family: var(--font-body); color: var(--ink); background: var(--bg); }
+  body {
+    margin: 0;
+    font-weight: 500;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+    min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding-block: 20px 56px; }
+
+  header.top {
+    text-align: center;
+    padding: 20px 8px 18px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  header.top::after {
+    content: "";
+    display: block;
+    width: 60%;
+    height: 0;
+    border-bottom: 3px dashed var(--line);
+    margin: 18px auto 0;
+  }
+  header.top h1 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5.4vw, 46px);
+    margin: 0 0 6px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  header.top p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: clamp(14px, 2.5vw, 17px);
+    font-weight: 700;
+  }
+  header.top .decor {
+    display: inline-flex;
+    gap: 10px;
+    font-size: 22px;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  /* Category tabs */
+  nav.tabs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px 10px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    flex: 1 0 auto;
+    min-width: 112px;
+    padding: 14px 18px;
+    border: 2.5px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform .15s, background .2s, border-color .2s, color .2s;
+  }
+  .tab:hover { transform: translateY(-2px); border-color: var(--tab-color); }
+  .tab:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .tab[aria-selected="true"] {
+    background: var(--tab-color);
+    border-color: var(--tab-color);
+    color: #fff;
+  }
+  .tab .emoji { font-size: 24px; line-height: 1; }
+
+  /* Menu grid */
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .menu[hidden] { display: none; }
+
+  .card {
+    background: var(--surface);
+    border: 2.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 14px 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .2s, border-color .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font: inherit;
+    color: inherit;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: var(--cat-color); }
+  .card:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .card .thumb {
+    width: 86px;
+    height: 86px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--cat-tint);
+    color: var(--cat-color);
+  }
+  .card .thumb svg { width: 68px; height: 68px; display: block; }
+  .card h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .card .sub {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+  }
+
+  /* Recipe view */
+  .recipe {
+    background: var(--surface);
+    border: 2.5px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-top: 10px;
+  }
+  .recipe[hidden] { display: none; }
+
+  .recipe-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-bottom: 18px;
+    border-bottom: 3px dashed var(--line);
+    margin-bottom: 20px;
+  }
+  .back-btn {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 2.5px solid var(--line);
+    color: var(--ink);
+    font-size: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    line-height: 1;
+    padding: 0;
+  }
+  .back-btn:hover { background: var(--line-soft); }
+  .back-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .recipe-title { flex: 1; min-width: 0; }
+  .recipe-title .cat-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cat-tint);
+    color: var(--cat-color);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  .recipe-title h2 {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 4.5vw, 36px);
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .recipe-icon {
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--cat-tint);
+    color: var(--cat-color);
+    flex-shrink: 0;
+  }
+  .recipe-icon svg { width: 60px; height: 60px; display: block; }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--ink);
+    margin: 24px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: "";
+    width: 8px;
+    height: 26px;
+    background: var(--cat-color);
+    border-radius: 4px;
+  }
+
+  /* Ingredients */
+  .ingredients {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+    gap: 14px;
+  }
+  .ing {
+    background: var(--surface-2);
+    border: 2.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 10px 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--cat-color);
+  }
+  .ing .vis {
+    width: 94px;
+    height: 94px;
+    display: grid;
+    place-items: center;
+  }
+  .ing .vis svg { width: 100%; height: 100%; display: block; }
+  .ing .ing-name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .ing .ing-amt {
+    display: inline-block;
+    background: var(--surface);
+    color: var(--cat-color);
+    padding: 3px 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 900;
+    border: 2px solid var(--cat-color);
+    font-family: var(--font-display);
+  }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface-2);
+    border: 2.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, opacity .2s;
+    user-select: none;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+  }
+  .step:hover { background: var(--line-soft); border-color: var(--cat-color); }
+  .step:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .step[aria-checked="true"] {
+    background: var(--cat-tint);
+    border-color: var(--cat-color);
+    opacity: 0.72;
+  }
+  .step[aria-checked="true"] .step-text {
+    text-decoration: line-through;
+    text-decoration-color: var(--cat-color);
+    text-decoration-thickness: 2px;
+  }
+  .step .num {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--cat-color);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .step .step-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    border-radius: 50%;
+    border: 2.5px solid var(--line);
+    color: var(--cat-color);
+    flex-shrink: 0;
+  }
+  .step .step-icon svg { width: 30px; height: 30px; display: block; }
+  .step .step-text {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+    min-width: 0;
+    word-break: keep-all;
+  }
+  .step .step-check {
+    width: 38px;
+    height: 38px;
+    border: 3px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .step[aria-checked="true"] .step-check {
+    background: var(--cat-color);
+    border-color: var(--cat-color);
+  }
+  .step[aria-checked="true"] .step-check::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 9px;
+    border-left: 4px solid #fff;
+    border-bottom: 4px solid #fff;
+    transform: rotate(-45deg) translate(1px, -2px);
+    left: 7px;
+    top: 10px;
+  }
+
+  /* Done banner */
+  .done-banner {
+    display: none;
+    text-align: center;
+    padding: 22px 18px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, var(--cat-tint) 0%, var(--surface-2) 100%);
+    border: 3px dashed var(--cat-color);
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: clamp(22px, 4vw, 28px);
+    color: var(--cat-color);
+    animation: pop .4s ease-out;
+    letter-spacing: -0.3px;
+  }
+  .done-banner.show { display: block; }
+  .done-banner .big { font-size: 48px; display: block; margin-bottom: 8px; line-height: 1; }
+  @keyframes pop {
+    0% { transform: scale(.6); opacity: 0; }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .done-banner { animation: none; }
+    .card, .step, .tab { transition: none; }
+  }
+
+  .reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    padding: 10px 16px;
+    background: var(--surface-2);
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .reset-btn:hover { background: var(--line-soft); color: var(--ink); }
+  .reset-btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  /* Theme toggle */
+  .theme-tog {
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2.5px solid var(--line);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 10;
+    color: var(--ink);
+    padding: 0;
+  }
+  .theme-tog:hover { background: var(--surface-2); }
+  .theme-tog:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  @media (max-width: 500px) {
+    .wrap { padding-block: 14px 90px; }
+    header.top { padding: 14px 8px 12px; margin-bottom: 10px; }
+    .ingredients { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .menu { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card { padding: 12px 10px 14px; }
+    .card .thumb { width: 72px; height: 72px; }
+    .card .thumb svg { width: 56px; height: 56px; }
+    .card h3 { font-size: 18px; }
+    .recipe { padding: 16px 14px; border-radius: 22px; }
+    .recipe-head { gap: 10px; padding-bottom: 14px; }
+    .recipe-icon { width: 60px; height: 60px; }
+    .recipe-icon svg { width: 46px; height: 46px; }
+    .back-btn { width: 42px; height: 42px; font-size: 20px; }
+    .section-title { font-size: 20px; margin: 20px 0 12px; }
+    .section-title::before { height: 22px; }
+    .ing { padding: 10px 6px 10px; }
+    .ing .vis { width: 76px; height: 76px; }
+    .ing .ing-name { font-size: 15px; }
+    .ing .ing-amt { font-size: 13px; padding: 2px 10px; }
+    .step .step-text { font-size: 15.5px; }
+    .step { padding: 11px 12px; gap: 10px; border-radius: 14px; }
+    .step .num { width: 34px; height: 34px; font-size: 18px; }
+    .step .step-icon { width: 40px; height: 40px; }
+    .step .step-icon svg { width: 26px; height: 26px; }
+    .step .step-check { width: 32px; height: 32px; }
+    .step[aria-checked="true"] .step-check::after { width: 13px; height: 7px; left: 6px; top: 9px; }
+    .tab { font-size: 17px; padding: 11px 12px; min-width: 92px; }
+    .tab .emoji { font-size: 20px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="decor" aria-hidden="true">☕ 🍵 🍋 🍓</div>
+    <h1>음료 조제 학습지</h1>
+    <p>그림을 보고 하나씩 따라해 보아요</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="음료 종류" id="tabs"></nav>
+  <main class="menu" id="menu" role="list"></main>
+  <section class="recipe" id="recipe" hidden aria-live="polite"></section>
+</div>
+
+<button class="theme-tog" id="themeTog" aria-label="밝게 또는 어둡게 전환" title="밝게 / 어둡게">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+
+<script>
+  // Unique id generator for SVG defs
+  let _svgId = 0;
+  const uid = () => `s${++_svgId}`;
+
+  /* ============ Pictograms ============ */
+
+  // Measuring cup/glass with fluid at `level` (0-1); label is a bold fraction on the right
+  function cup(level, fluid, label) {
+    const id = uid();
+    const w = 100, h = 110;
+    const topY = 15, botY = 95;
+    const leftTop = 24, rightTop = 76;
+    const leftBot = 32, rightBot = 68;
+    const fillY = topY + (botY - topY) * (1 - level);
+    const marks = [0.25, 0.5, 0.75];
+    return `
+      <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <clipPath id="${id}">
+            <path d="M${leftTop} ${topY} L${rightTop} ${topY} L${rightBot} ${botY} Q${rightBot+2} ${botY+4} ${rightBot-4} ${botY+4} L${leftBot+4} ${botY+4} Q${leftBot-2} ${botY+4} ${leftBot} ${botY} Z"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#${id})">
+          <rect x="0" y="${fillY}" width="${w}" height="${h}" fill="${fluid}"/>
+        </g>
+        <path d="M${leftTop} ${topY} L${rightTop} ${topY} L${rightBot} ${botY} Q${rightBot+2} ${botY+4} ${rightBot-4} ${botY+4} L${leftBot+4} ${botY+4} Q${leftBot-2} ${botY+4} ${leftBot} ${botY} Z"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="50" cy="${topY}" rx="26" ry="3.5" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        ${marks.map(m => {
+          const y = topY + (botY - topY) * (1 - m);
+          const t = (y - topY) / (botY - topY);
+          const lx = leftTop + (leftBot - leftTop) * t;
+          return `<line x1="${lx+1}" y1="${y}" x2="${lx+8}" y2="${y}" stroke="currentColor" stroke-width="1.8" opacity="0.45"/>`;
+        }).join('')}
+        <rect x="56" y="${fillY-11}" width="34" height="22" rx="6" fill="currentColor"/>
+        <text x="73" y="${fillY+5}" font-family="Jua, sans-serif" font-size="18" fill="#fff" text-anchor="middle" font-weight="900">${label}</text>
+      </svg>
+    `;
+  }
+
+  // Glass with ice cubes stacked up to `level`
+  function iceCup(level, label) {
+    const id = uid();
+    const w = 100, h = 110;
+    const topY = 15, botY = 95;
+    const leftTop = 24, rightTop = 76;
+    const leftBot = 32, rightBot = 68;
+    const fillY = topY + (botY - topY) * (1 - level);
+    const cubes = [
+      { x: 38, y: botY - 18, s: 14, r: 8 },
+      { x: 54, y: botY - 30, s: 13, r: -10 },
+      { x: 36, y: botY - 42, s: 13, r: 6 },
+      { x: 52, y: botY - 54, s: 12, r: -8 },
+      { x: 40, y: botY - 65, s: 12, r: 14 },
+      { x: 55, y: botY - 76, s: 11, r: -6 },
+    ];
+    const visibleCubes = cubes.filter(c => c.y >= fillY - 4);
+    return `
+      <svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><clipPath id="${id}"><path d="M${leftTop} ${topY} L${rightTop} ${topY} L${rightBot} ${botY} Q${rightBot+2} ${botY+4} ${rightBot-4} ${botY+4} L${leftBot+4} ${botY+4} Q${leftBot-2} ${botY+4} ${leftBot} ${botY} Z"/></clipPath></defs>
+        <g clip-path="url(#${id})">
+          ${visibleCubes.map(c => `
+            <rect x="${c.x}" y="${c.y}" width="${c.s}" height="${c.s}" rx="2.5"
+                  fill="#D4EBF4" stroke="#6FA3BA" stroke-width="1.6"
+                  transform="rotate(${c.r} ${c.x+c.s/2} ${c.y+c.s/2})"/>
+            <path d="M${c.x+2} ${c.y+c.s*0.35} L${c.x+c.s*0.4} ${c.y+2}" stroke="#fff" stroke-width="1.6" opacity="0.7"
+                  transform="rotate(${c.r} ${c.x+c.s/2} ${c.y+c.s/2})"/>
+          `).join('')}
+        </g>
+        <path d="M${leftTop} ${topY} L${rightTop} ${topY} L${rightBot} ${botY} Q${rightBot+2} ${botY+4} ${rightBot-4} ${botY+4} L${leftBot+4} ${botY+4} Q${leftBot-2} ${botY+4} ${leftBot} ${botY} Z"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="50" cy="${topY}" rx="26" ry="3.5" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <rect x="56" y="${fillY-11}" width="34" height="22" rx="6" fill="currentColor"/>
+        <text x="73" y="${fillY+5}" font-family="Jua, sans-serif" font-size="18" fill="#fff" text-anchor="middle" font-weight="900">${label}</text>
+      </svg>
+    `;
+  }
+
+  // Espresso shot glass with a count badge
+  function shot(count) {
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M30 32 L70 32 L62 78 Q62 82 58 82 L42 82 Q38 82 38 78 Z"
+              fill="var(--surface)" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M31.5 44 L68.5 44 L62 78 Q62 82 58 82 L42 82 Q38 82 38 78 Z" fill="var(--coffee-liquid)"/>
+        <ellipse cx="50" cy="44" rx="18" ry="2.4" fill="#9A6A3F" opacity="0.75"/>
+        <path d="M70 52 Q84 52 84 64 Q84 72 72 72" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="80" cy="24" r="15" fill="currentColor"/>
+        <text x="80" y="31" font-family="Jua, sans-serif" font-size="20" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Syrup pump bottle with count
+  function pump(count, bottleColor) {
+    bottleColor = bottleColor || '#B46A2E';
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="30" y="40" width="40" height="48" rx="5" fill="${bottleColor}" stroke="currentColor" stroke-width="2.5"/>
+        <rect x="34" y="54" width="32" height="18" rx="2" fill="var(--surface)" opacity="0.85"/>
+        <rect x="36" y="30" width="28" height="12" rx="2" fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
+        <path d="M50 30 L50 18 L62 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="62" cy="18" r="5" fill="currentColor"/>
+        <circle cx="80" cy="26" r="15" fill="currentColor"/>
+        <text x="80" y="33" font-family="Jua, sans-serif" font-size="20" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Scoop with heaped contents + count
+  function scoop(count, fillColor) {
+    fillColor = fillColor || '#E8DCB8';
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M22 58 Q22 76 40 76 L52 76 Q70 76 70 58 Q70 48 52 48 L40 48 Q22 48 22 58 Z"
+              fill="var(--surface)" stroke="currentColor" stroke-width="2.5"/>
+        <path d="M25 58 Q25 72 40 72 L52 72 Q67 72 67 58 L25 58 Z" fill="${fillColor}" opacity="0.9"/>
+        <path d="M26 48 Q36 32 46 42 Q56 32 66 48" fill="${fillColor}" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M70 58 L88 46" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="82" cy="78" r="14" fill="currentColor"/>
+        <text x="82" y="84" font-family="Jua, sans-serif" font-size="18" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Tea bag on a string with count
+  function teabag(count) {
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M50 8 L50 38" stroke="currentColor" stroke-width="2.2" fill="none"/>
+        <rect x="42" y="38" width="16" height="10" rx="1.5" fill="var(--surface)" stroke="currentColor" stroke-width="2"/>
+        <text x="50" y="46" font-family="Jua, sans-serif" font-size="7" text-anchor="middle" fill="currentColor" font-weight="900">TEA</text>
+        <path d="M32 54 L68 54 L62 88 Q62 92 58 92 L42 92 Q38 92 38 88 Z"
+              fill="#D9BD86" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="40" y1="60" x2="60" y2="60" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+        <line x1="40" y1="68" x2="60" y2="68" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="82" cy="24" r="14" fill="currentColor"/>
+        <text x="82" y="30" font-family="Jua, sans-serif" font-size="18" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Round fruit with highlight + leaf + Korean label
+  function fruit(color, label) {
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="50" cy="55" r="30" fill="${color}" stroke="currentColor" stroke-width="2.5"/>
+        <ellipse cx="40" cy="46" rx="10" ry="6" fill="rgba(255,255,255,0.5)"/>
+        <path d="M48 26 Q50 18 58 20 Q64 23 60 30" fill="#5A9253" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <text x="50" y="99" font-family="Jua, sans-serif" font-size="14" fill="currentColor" text-anchor="middle" font-weight="900">${label}</text>
+      </svg>
+    `;
+  }
+
+  // Powder sachet with count
+  function powder(color, count) {
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M28 22 L72 22 L72 86 Q72 90 68 90 L32 90 Q28 90 28 86 Z" fill="${color}" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M28 22 L72 22 L68 34 L32 34 Z" fill="var(--surface)" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="36" y="48" width="28" height="20" rx="2" fill="var(--surface)" opacity="0.75"/>
+        <circle cx="82" cy="24" r="14" fill="currentColor"/>
+        <text x="82" y="30" font-family="Jua, sans-serif" font-size="18" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Lemon slice as a decorative ingredient
+  function lemonSlice(count) {
+    count = count || 1;
+    return `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="50" cy="52" r="30" fill="#F6D74A" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="50" cy="52" r="22" fill="#FDEC9A" stroke="currentColor" stroke-width="1.8"/>
+        ${[0,45,90,135,180,225,270,315].map(a => {
+          const r1 = 6, r2 = 20;
+          const rad = a * Math.PI / 180;
+          return `<line x1="${50+Math.cos(rad)*r1}" y1="${52+Math.sin(rad)*r1}" x2="${50+Math.cos(rad)*r2}" y2="${52+Math.sin(rad)*r2}" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>`;
+        }).join('')}
+        <circle cx="82" cy="22" r="14" fill="currentColor"/>
+        <text x="82" y="28" font-family="Jua, sans-serif" font-size="18" fill="var(--surface)" text-anchor="middle" font-weight="900">×${count}</text>
+      </svg>
+    `;
+  }
+
+  // Compact drink thumbnail for cards and header
+  function thumb(fluid, hasIce, extra) {
+    const id = uid();
+    return `
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><clipPath id="${id}"><path d="M18 20 L62 20 L56 70 Q56 74 52 74 L28 74 Q24 74 24 70 Z"/></clipPath></defs>
+        <g clip-path="url(#${id})">
+          <rect x="0" y="${hasIce ? 32 : 38}" width="80" height="80" fill="${fluid}"/>
+          ${hasIce ? `
+            <rect x="26" y="42" width="11" height="11" rx="2" fill="#D4EBF4" stroke="#6FA3BA" stroke-width="1.4" transform="rotate(10 31.5 47.5)"/>
+            <rect x="42" y="50" width="10" height="10" rx="2" fill="#D4EBF4" stroke="#6FA3BA" stroke-width="1.4" transform="rotate(-12 47 55)"/>
+            <rect x="32" y="56" width="10" height="10" rx="2" fill="#D4EBF4" stroke="#6FA3BA" stroke-width="1.4" transform="rotate(6 37 61)"/>
+          ` : ''}
+          ${extra || ''}
+        </g>
+        <path d="M18 20 L62 20 L56 70 Q56 74 52 74 L28 74 Q24 74 24 70 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="40" cy="20" rx="22" ry="3.2" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <path d="M46 10 L52 72" stroke="#E05A6E" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  /* ============ Step icons (small line pictograms) ============ */
+  const stepIcons = {
+    cup: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M8 8 L24 8 L22 26 Q22 28 20 28 L12 28 Q10 28 10 26 Z"/><ellipse cx="16" cy="8" rx="8" ry="1.6"/></svg>`,
+    ice: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="5" width="11" height="11" rx="1.5" transform="rotate(10 9.5 10.5)"/><rect x="17" y="15" width="11" height="11" rx="1.5" transform="rotate(-10 22.5 20.5)"/></svg>`,
+    water: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M16 4 Q6 18 10 24 Q14 30 22 24 Q26 18 16 4 Z" fill="currentColor" fill-opacity="0.18"/></svg>`,
+    espresso: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M9 10 L23 10 L21 24 Q21 26 19 26 L13 26 Q11 26 11 24 Z"/><path d="M23 14 Q27 14 27 18 Q27 22 24 22"/><path d="M11 14 L21 14" opacity="0.5"/></svg>`,
+    milk: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M12 4 L20 4 L20 10 L24 14 L24 26 Q24 28 22 28 L10 28 Q8 28 8 26 L8 14 L12 10 Z"/><path d="M8 16 L24 16" opacity="0.5"/></svg>`,
+    syrup: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="10" y="12" width="12" height="16" rx="1.5"/><rect x="12" y="8" width="8" height="4"/><path d="M16 8 L16 4 L20 4" fill="none"/></svg>`,
+    scoop: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><ellipse cx="12" cy="20" rx="7" ry="5"/><path d="M9 15 Q12 11 15 15" fill="currentColor" fill-opacity="0.15"/><path d="M19 20 L26 14" stroke-width="3.2" stroke-linecap="round"/></svg>`,
+    stir: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 10 L18 10 L17 24 Q17 26 15 26 L11 26 Q9 26 9 24 Z" stroke-linejoin="round"/><path d="M22 4 L22 20" /><path d="M20 6 L24 6"/></svg>`,
+    blend: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="9" y="4" width="14" height="4" rx="1"/><path d="M8 8 L24 8 L22 24 Q22 26 20 26 L12 26 Q10 26 10 24 Z"/><path d="M12 14 L20 20 M20 14 L12 20" stroke-linecap="round"/><rect x="12" y="26" width="8" height="3"/></svg>`,
+    teabag: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M16 4 L16 14"/><rect x="11" y="14" width="10" height="14"/><path d="M14 14 L14 28 M18 14 L18 28" opacity="0.4"/></svg>`,
+    pour: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M4 8 L18 8 L16 20 L6 20 Z"/><path d="M18 12 L22 16 Q24 20 24 23 Q24 25 22 25 Q20 25 20 23 Q20 20 22 16"/></svg>`,
+    done: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><circle cx="16" cy="16" r="12"/><path d="M10 16 L14 20 L22 12"/></svg>`,
+    fruit: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="16" cy="19" r="10"/><path d="M14 8 Q15 4 18 5 Q20 6 18 9" stroke-linecap="round" fill="none"/></svg>`,
+    lemon: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="7" opacity="0.5"/><path d="M16 5 L16 27 M5 16 L27 16" opacity="0.4"/></svg>`,
+    hot: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 4 Q8 8 10 10 Q12 12 10 14"/><path d="M16 4 Q14 8 16 10 Q18 12 16 14"/><path d="M22 4 Q20 8 22 10 Q24 12 22 14"/></svg>`,
+  };
+
+  /* ============ Categories & beverages ============ */
+  const categories = {
+    coffee: { label: '커피', emoji: '☕', color: '#6B4226', tint: '#F2E3CF', var: '--coffee' },
+    tea:    { label: '차',   emoji: '🍵', color: '#3B7A4F', tint: '#DBECDF', var: '--tea' },
+    ade:    { label: '에이드', emoji: '🍋', color: '#D88A1C', tint: '#FBE9C3', var: '--ade' },
+    smoothie: { label: '스무디', emoji: '🍓', color: '#BE4876', tint: '#F8D7E2', var: '--smoothie' },
+  };
+
+  const BEV = {
+    coffee: [
+      {
+        id: 'americano',
+        name: '아메리카노',
+        sub: 'Americano',
+        thumb: () => thumb('#5C3A21', true),
+        ings: [
+          { name: '얼음',      amt: '컵의 ⅔', vis: () => iceCup(0.66, '⅔') },
+          { name: '물',        amt: '½컵',    vis: () => cup(0.5, '#94C9E6', '½') },
+          { name: '에스프레소', amt: '2샷',    vis: () => shot(2) },
+        ],
+        steps: [
+          { ic: 'cup',      t: '유리컵을 준비해요' },
+          { ic: 'ice',      t: '얼음을 컵의 ⅔까지 넣어요' },
+          { ic: 'water',    t: '물을 ½컵 부어요' },
+          { ic: 'espresso', t: '에스프레소 2샷을 부어요' },
+          { ic: 'stir',     t: '빨대로 가볍게 저어요' },
+          { ic: 'done',     t: '아메리카노 완성!' },
+        ],
+      },
+      {
+        id: 'latte',
+        name: '카페라떼',
+        sub: 'Caffè Latte',
+        thumb: () => thumb('#E8D3A8', false, '<rect x="20" y="20" width="40" height="7" fill="#5C3A21" opacity="0.75"/>'),
+        ings: [
+          { name: '얼음',      amt: '컵의 ½',  vis: () => iceCup(0.5, '½') },
+          { name: '우유',      amt: '¾컵',    vis: () => cup(0.75, '#FFF9E2', '¾') },
+          { name: '에스프레소', amt: '2샷',    vis: () => shot(2) },
+        ],
+        steps: [
+          { ic: 'cup',      t: '유리컵을 준비해요' },
+          { ic: 'ice',      t: '얼음을 컵의 ½까지 넣어요' },
+          { ic: 'milk',     t: '우유를 ¾컵 부어요' },
+          { ic: 'espresso', t: '에스프레소 2샷을 부어요' },
+          { ic: 'stir',     t: '빨대로 가볍게 저어요' },
+          { ic: 'done',     t: '카페라떼 완성!' },
+        ],
+      },
+      {
+        id: 'vanilla',
+        name: '바닐라라떼',
+        sub: 'Vanilla Latte',
+        thumb: () => thumb('#E8D3A8', false, '<rect x="20" y="20" width="40" height="7" fill="#5C3A21" opacity="0.75"/>'),
+        ings: [
+          { name: '얼음',       amt: '컵의 ½',  vis: () => iceCup(0.5, '½') },
+          { name: '바닐라시럽', amt: '펌프 2번', vis: () => pump(2, '#E6C879') },
+          { name: '우유',       amt: '¾컵',     vis: () => cup(0.75, '#FFF9E2', '¾') },
+          { name: '에스프레소', amt: '2샷',     vis: () => shot(2) },
+        ],
+        steps: [
+          { ic: 'cup',      t: '유리컵을 준비해요' },
+          { ic: 'syrup',    t: '바닐라시럽을 2번 눌러요' },
+          { ic: 'ice',      t: '얼음을 컵의 ½까지 넣어요' },
+          { ic: 'milk',     t: '우유를 ¾컵 부어요' },
+          { ic: 'espresso', t: '에스프레소 2샷을 부어요' },
+          { ic: 'stir',     t: '빨대로 가볍게 저어요' },
+          { ic: 'done',     t: '바닐라라떼 완성!' },
+        ],
+      },
+    ],
+    tea: [
+      {
+        id: 'green',
+        name: '녹차',
+        sub: 'Green Tea',
+        thumb: () => thumb('#8EC56A', false),
+        ings: [
+          { name: '녹차 티백',  amt: '1개',  vis: () => teabag(1) },
+          { name: '뜨거운 물',  amt: '1컵',  vis: () => cup(0.95, '#8EC56A', '1') },
+        ],
+        steps: [
+          { ic: 'cup',    t: '머그컵을 준비해요' },
+          { ic: 'teabag', t: '녹차 티백 1개를 넣어요' },
+          { ic: 'pour',   t: '뜨거운 물을 1컵 부어요' },
+          { ic: 'hot',    t: '2분 동안 우려요' },
+          { ic: 'teabag', t: '티백을 꺼내요' },
+          { ic: 'done',   t: '녹차 완성!' },
+        ],
+      },
+      {
+        id: 'yuja',
+        name: '유자차',
+        sub: 'Yuja Tea',
+        thumb: () => thumb('#D59238', false),
+        ings: [
+          { name: '유자청',    amt: '2스쿱', vis: () => scoop(2, '#F2B341') },
+          { name: '뜨거운 물', amt: '1컵',   vis: () => cup(0.95, '#D59238', '1') },
+        ],
+        steps: [
+          { ic: 'cup',   t: '머그컵을 준비해요' },
+          { ic: 'scoop', t: '유자청을 2스쿱 넣어요' },
+          { ic: 'pour',  t: '뜨거운 물을 1컵 부어요' },
+          { ic: 'stir',  t: '잘 저어요' },
+          { ic: 'done',  t: '유자차 완성!' },
+        ],
+      },
+      {
+        id: 'peach',
+        name: '복숭아 아이스티',
+        sub: 'Peach Iced Tea',
+        thumb: () => thumb('#F2B88A', true),
+        ings: [
+          { name: '복숭아 가루', amt: '1봉지',   vis: () => powder('#F6A879', 1) },
+          { name: '얼음',       amt: '컵의 ⅔',  vis: () => iceCup(0.66, '⅔') },
+          { name: '찬물',       amt: '¾컵',     vis: () => cup(0.75, '#94C9E6', '¾') },
+        ],
+        steps: [
+          { ic: 'cup',   t: '유리컵을 준비해요' },
+          { ic: 'syrup', t: '복숭아 가루 1봉지를 넣어요' },
+          { ic: 'water', t: '찬물을 ¾컵 부어요' },
+          { ic: 'stir',  t: '가루가 녹을 때까지 저어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ⅔까지 넣어요' },
+          { ic: 'done',  t: '복숭아 아이스티 완성!' },
+        ],
+      },
+    ],
+    ade: [
+      {
+        id: 'lemon',
+        name: '레몬에이드',
+        sub: 'Lemonade',
+        thumb: () => thumb('#F4CE3F', true),
+        ings: [
+          { name: '레몬청',  amt: '3스쿱',  vis: () => scoop(3, '#F2D04F') },
+          { name: '얼음',    amt: '컵의 ⅔', vis: () => iceCup(0.66, '⅔') },
+          { name: '탄산수',  amt: '¾컵',    vis: () => cup(0.75, '#D7F0F7', '¾') },
+          { name: '레몬',    amt: '1조각',  vis: () => lemonSlice(1) },
+        ],
+        steps: [
+          { ic: 'cup',   t: '유리컵을 준비해요' },
+          { ic: 'scoop', t: '레몬청을 3스쿱 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ⅔까지 넣어요' },
+          { ic: 'pour',  t: '탄산수를 ¾컵 부어요' },
+          { ic: 'stir',  t: '빨대로 가볍게 저어요' },
+          { ic: 'lemon', t: '레몬 1조각을 올려요' },
+          { ic: 'done',  t: '레몬에이드 완성!' },
+        ],
+      },
+      {
+        id: 'grapefruit',
+        name: '자몽에이드',
+        sub: 'Grapefruit Ade',
+        thumb: () => thumb('#F08BB3', true),
+        ings: [
+          { name: '자몽청',  amt: '3스쿱',  vis: () => scoop(3, '#F09E8E') },
+          { name: '얼음',    amt: '컵의 ⅔', vis: () => iceCup(0.66, '⅔') },
+          { name: '탄산수',  amt: '¾컵',    vis: () => cup(0.75, '#D7F0F7', '¾') },
+        ],
+        steps: [
+          { ic: 'cup',   t: '유리컵을 준비해요' },
+          { ic: 'scoop', t: '자몽청을 3스쿱 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ⅔까지 넣어요' },
+          { ic: 'pour',  t: '탄산수를 ¾컵 부어요' },
+          { ic: 'stir',  t: '빨대로 가볍게 저어요' },
+          { ic: 'done',  t: '자몽에이드 완성!' },
+        ],
+      },
+      {
+        id: 'blueberry-ade',
+        name: '블루베리에이드',
+        sub: 'Blueberry Ade',
+        thumb: () => thumb('#8065B1', true),
+        ings: [
+          { name: '블루베리청', amt: '3스쿱',  vis: () => scoop(3, '#8065B1') },
+          { name: '얼음',       amt: '컵의 ⅔', vis: () => iceCup(0.66, '⅔') },
+          { name: '탄산수',     amt: '¾컵',    vis: () => cup(0.75, '#D7F0F7', '¾') },
+        ],
+        steps: [
+          { ic: 'cup',   t: '유리컵을 준비해요' },
+          { ic: 'scoop', t: '블루베리청을 3스쿱 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ⅔까지 넣어요' },
+          { ic: 'pour',  t: '탄산수를 ¾컵 부어요' },
+          { ic: 'stir',  t: '빨대로 가볍게 저어요' },
+          { ic: 'done',  t: '블루베리에이드 완성!' },
+        ],
+      },
+    ],
+    smoothie: [
+      {
+        id: 'strawberry',
+        name: '딸기 스무디',
+        sub: 'Strawberry Smoothie',
+        thumb: () => thumb('#E0516D', false),
+        ings: [
+          { name: '딸기',  amt: '1컵',    vis: () => fruit('#E0516D', '딸기 1컵') },
+          { name: '얼음',  amt: '컵의 ½', vis: () => iceCup(0.5, '½') },
+          { name: '우유',  amt: '½컵',    vis: () => cup(0.5, '#FFF9E2', '½') },
+          { name: '설탕',  amt: '2스쿱',  vis: () => scoop(2, '#FFFFFF') },
+        ],
+        steps: [
+          { ic: 'blend', t: '믹서기를 준비해요' },
+          { ic: 'fruit', t: '딸기 1컵을 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ½까지 넣어요' },
+          { ic: 'milk',  t: '우유를 ½컵 넣어요' },
+          { ic: 'scoop', t: '설탕을 2스쿱 넣어요' },
+          { ic: 'blend', t: '믹서기를 30초 돌려요' },
+          { ic: 'pour',  t: '컵에 부어요' },
+          { ic: 'done',  t: '딸기 스무디 완성!' },
+        ],
+      },
+      {
+        id: 'mango',
+        name: '망고 스무디',
+        sub: 'Mango Smoothie',
+        thumb: () => thumb('#F2B33E', false),
+        ings: [
+          { name: '망고',  amt: '1컵',    vis: () => fruit('#F2B33E', '망고 1컵') },
+          { name: '얼음',  amt: '컵의 ½', vis: () => iceCup(0.5, '½') },
+          { name: '우유',  amt: '½컵',    vis: () => cup(0.5, '#FFF9E2', '½') },
+          { name: '설탕',  amt: '2스쿱',  vis: () => scoop(2, '#FFFFFF') },
+        ],
+        steps: [
+          { ic: 'blend', t: '믹서기를 준비해요' },
+          { ic: 'fruit', t: '망고 1컵을 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ½까지 넣어요' },
+          { ic: 'milk',  t: '우유를 ½컵 넣어요' },
+          { ic: 'scoop', t: '설탕을 2스쿱 넣어요' },
+          { ic: 'blend', t: '믹서기를 30초 돌려요' },
+          { ic: 'pour',  t: '컵에 부어요' },
+          { ic: 'done',  t: '망고 스무디 완성!' },
+        ],
+      },
+      {
+        id: 'blueberry-smoothie',
+        name: '블루베리 스무디',
+        sub: 'Blueberry Smoothie',
+        thumb: () => thumb('#8065B1', false),
+        ings: [
+          { name: '블루베리', amt: '1컵',    vis: () => fruit('#8065B1', '블루베리 1컵') },
+          { name: '얼음',    amt: '컵의 ½', vis: () => iceCup(0.5, '½') },
+          { name: '요구르트', amt: '½컵',   vis: () => cup(0.5, '#FFF9E2', '½') },
+          { name: '꿀',      amt: '1스쿱',  vis: () => scoop(1, '#F2B341') },
+        ],
+        steps: [
+          { ic: 'blend', t: '믹서기를 준비해요' },
+          { ic: 'fruit', t: '블루베리 1컵을 넣어요' },
+          { ic: 'ice',   t: '얼음을 컵의 ½까지 넣어요' },
+          { ic: 'milk',  t: '요구르트를 ½컵 넣어요' },
+          { ic: 'scoop', t: '꿀을 1스쿱 넣어요' },
+          { ic: 'blend', t: '믹서기를 30초 돌려요' },
+          { ic: 'pour',  t: '컵에 부어요' },
+          { ic: 'done',  t: '블루베리 스무디 완성!' },
+        ],
+      },
+    ],
+  };
+
+  /* ============ UI ============ */
+  const tabsEl = document.getElementById('tabs');
+  const menuEl = document.getElementById('menu');
+  const recipeEl = document.getElementById('recipe');
+  const themeTog = document.getElementById('themeTog');
+
+  let currentCat = 'coffee';
+  let currentBev = null;
+  let progress = {};
+  try { progress = JSON.parse(localStorage.getItem('bev_prog') || '{}'); } catch (e) {}
+
+  function saveProgress() {
+    try { localStorage.setItem('bev_prog', JSON.stringify(progress)); } catch (e) {}
+  }
+
+  function setCatVars(target, cat) {
+    const c = categories[cat];
+    target.style.setProperty('--cat-color', c.color);
+    target.style.setProperty('--cat-tint', c.tint);
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = Object.entries(categories).map(([k, c]) => `
+      <button class="tab" type="button" role="tab" data-cat="${k}" aria-selected="${k === currentCat}"
+              style="--tab-color:${c.color}">
+        <span class="emoji" aria-hidden="true">${c.emoji}</span>
+        <span>${c.label}</span>
+      </button>
+    `).join('');
+    tabsEl.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        if (t.dataset.cat === currentCat && recipeEl.hidden) return;
+        currentCat = t.dataset.cat;
+        currentBev = null;
+        setCatVars(document.documentElement, currentCat);
+        renderTabs();
+        renderMenu();
+        recipeEl.hidden = true;
+        menuEl.hidden = false;
+      });
+    });
+  }
+
+  function renderMenu() {
+    const items = BEV[currentCat] || [];
+    setCatVars(menuEl, currentCat);
+    menuEl.innerHTML = items.map(b => `
+      <button class="card" type="button" data-id="${b.id}" role="listitem">
+        <div class="thumb">${b.thumb()}</div>
+        <h3>${b.name}</h3>
+        <div class="sub">${b.sub}</div>
+      </button>
+    `).join('');
+    menuEl.querySelectorAll('.card').forEach(c => {
+      c.addEventListener('click', () => openRecipe(c.dataset.id));
+    });
+  }
+
+  function openRecipe(id) {
+    const b = (BEV[currentCat] || []).find(x => x.id === id);
+    if (!b) return;
+    currentBev = b;
+    const key = `${currentCat}:${id}`;
+    const checked = progress[key] || {};
+    const col = categories[currentCat];
+    setCatVars(recipeEl, currentCat);
+
+    recipeEl.innerHTML = `
+      <div class="recipe-head">
+        <button class="back-btn" type="button" id="backBtn" aria-label="메뉴로 돌아가기">←</button>
+        <div class="recipe-title">
+          <span class="cat-label"><span aria-hidden="true">${col.emoji}</span> ${col.label}</span>
+          <h2>${b.name}</h2>
+        </div>
+        <div class="recipe-icon">${b.thumb()}</div>
+      </div>
+
+      <h3 class="section-title">준비물</h3>
+      <div class="ingredients">
+        ${b.ings.map(i => `
+          <div class="ing">
+            <div class="vis">${i.vis()}</div>
+            <div class="ing-name">${i.name}</div>
+            <div class="ing-amt">${i.amt}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <h3 class="section-title">만드는 순서</h3>
+      <div class="steps">
+        ${b.steps.map((s, idx) => `
+          <button class="step" type="button" role="checkbox" tabindex="0" data-idx="${idx}"
+                  aria-checked="${checked[idx] ? 'true' : 'false'}">
+            <span class="num">${idx + 1}</span>
+            <span class="step-icon" aria-hidden="true">${stepIcons[s.ic] || stepIcons.cup}</span>
+            <span class="step-text">${s.t}</span>
+            <span class="step-check" aria-hidden="true"></span>
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="done-banner" id="doneBanner">
+        <span class="big" aria-hidden="true">🎉</span>
+        모두 완성했어요!
+      </div>
+
+      <button class="reset-btn" type="button" id="resetBtn" aria-label="순서 체크 지우기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        다시 하기
+      </button>
+    `;
+
+    recipeEl.hidden = false;
+    menuEl.hidden = true;
+
+    recipeEl.querySelector('#backBtn').addEventListener('click', closeRecipe);
+
+    const steps = recipeEl.querySelectorAll('.step');
+    steps.forEach(st => {
+      const toggle = () => {
+        const idx = +st.dataset.idx;
+        checked[idx] = !checked[idx];
+        st.setAttribute('aria-checked', checked[idx] ? 'true' : 'false');
+        progress[key] = checked;
+        saveProgress();
+        updateDone();
+      };
+      st.addEventListener('click', toggle);
+      st.addEventListener('keydown', e => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+      });
+    });
+
+    recipeEl.querySelector('#resetBtn').addEventListener('click', () => {
+      for (const k of Object.keys(checked)) delete checked[k];
+      progress[key] = checked;
+      saveProgress();
+      steps.forEach(st => st.setAttribute('aria-checked', 'false'));
+      updateDone();
+    });
+
+    updateDone();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    function updateDone() {
+      const total = b.steps.length;
+      const done = b.steps.every((_, i) => checked[i]);
+      const banner = recipeEl.querySelector('#doneBanner');
+      if (banner) banner.classList.toggle('show', done && total > 0);
+    }
+  }
+
+  function closeRecipe() {
+    currentBev = null;
+    recipeEl.hidden = true;
+    menuEl.hidden = false;
+  }
+
+  // Theme toggle
+  function applyTheme(t) {
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('bev_theme', t); } catch (e) {}
+  }
+  let theme = 'auto';
+  try { theme = localStorage.getItem('bev_theme') || 'auto'; } catch (e) {}
+  applyTheme(theme);
+  themeTog.addEventListener('click', () => {
+    const curr = document.documentElement.getAttribute('data-theme');
+    const sysDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = curr === 'dark' || (!curr && sysDark);
+    applyTheme(isDark ? 'light' : 'dark');
+  });
+
+  setCatVars(document.documentElement, currentCat);
+  renderTabs();
+  renderMenu();
+</script>
