@@ -450,8 +450,22 @@
   .edit-row .er-vis {
     width: 56px; height: 56px; display: grid; place-items: center;
     background: var(--surface); border-radius: 10px; flex-shrink: 0;
-    color: var(--cat-color);
+    color: var(--cat-color); position: relative;
+    border: 2px solid transparent; cursor: pointer;
+    transition: background .15s, border-color .15s;
   }
+  .edit-row .er-vis:hover { background: var(--cat-tint); border-color: var(--cat-color); }
+  .edit-row .er-vis[data-replace-ing]::after,
+  .edit-row .er-vis[data-replace-step]::after {
+    content: "✎"; position: absolute; right: -5px; bottom: -5px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--cat-color); color: #fff;
+    font-size: 12px; display: grid; place-items: center;
+    border: 2px solid var(--surface); font-family: var(--font-display);
+    line-height: 1;
+  }
+  .edit-row .er-vis.replacing { border-color: var(--cat-color); background: var(--cat-tint); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--cat-color); } 50% { box-shadow: 0 0 0 4px rgba(0,0,0,0); } }
   .edit-row .er-vis svg { width: 48px; height: 48px; display: block; }
   .edit-row .er-fields { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .edit-row .er-fields input {
@@ -1724,6 +1738,8 @@
   let editingIsNew = false;
   let ingPickerOpen = false;
   let stepPickerOpen = false;
+  let replacingIngIdx = null;
+  let replacingStepIdx = null;
 
   function setCatVars(target, cat) {
     const c = categories[cat];
@@ -1952,6 +1968,10 @@
   function closeModal() {
     editingMenu = null;
     editingKey = null;
+    ingPickerOpen = false;
+    stepPickerOpen = false;
+    replacingIngIdx = null;
+    replacingStepIdx = null;
     modalBackdropEl.hidden = true;
     modalEl.hidden = true;
     document.body.style.overflow = '';
@@ -1966,7 +1986,7 @@
 
     const ingPickerHTML = ingPickerOpen ? `
       <div class="picker" id="ingPicker">
-        <div class="picker-title">아래 재료 그림을 눌러서 추가하세요</div>
+        <div class="picker-title">${replacingIngIdx !== null ? '🔄 아래 그림 중 하나를 눌러서 바꿔요 (이름·양은 유지됩니다)' : '아래 재료 그림을 눌러서 추가하세요'}</div>
         <div class="picker-grid">
           ${ING_GALLERY.map((g, idx) => `
             <button class="picker-item" type="button" data-ing-idx="${idx}">
@@ -1978,7 +1998,7 @@
       </div>` : '';
     const stepPickerHTML = stepPickerOpen ? `
       <div class="picker" id="stepPicker">
-        <div class="picker-title">아래 단계를 눌러서 추가하세요 (텍스트는 추가 후 수정할 수 있어요)</div>
+        <div class="picker-title">${replacingStepIdx !== null ? '🔄 아래 아이콘 중 하나를 눌러서 바꿔요 (단계 설명은 유지됩니다)' : '아래 단계를 눌러서 추가하세요 (텍스트는 추가 후 수정할 수 있어요)'}</div>
         <div class="picker-grid">
           ${STEP_PALETTE.map((s, idx) => `
             <button class="picker-item" type="button" data-step-idx="${idx}">
@@ -2019,7 +2039,7 @@
         <div class="edit-list" id="ingList">
           ${m.ings.length === 0 ? '<div style="color:var(--ink-faint); font-size:14px; padding:12px; text-align:center">아직 재료가 없어요. 위의 "+ 재료 추가" 를 눌러서 넣어주세요.</div>' : m.ings.map((i, idx) => `
             <div class="edit-row">
-              <div class="er-vis">${renderVisual(i.vis)}</div>
+              <div class="er-vis${replacingIngIdx === idx ? ' replacing' : ''}" data-replace-ing="${idx}" title="그림을 다른 것으로 바꿔요">${renderVisual(i.vis)}</div>
               <div class="er-fields">
                 <input type="text" data-ing-field="name" data-idx="${idx}" value="${esc(i.name)}" placeholder="이름">
                 <input type="text" data-ing-field="amt" data-idx="${idx}" value="${esc(i.amt)}" placeholder="양">
@@ -2038,7 +2058,7 @@
           ${m.steps.length === 0 ? '<div style="color:var(--ink-faint); font-size:14px; padding:12px; text-align:center">아직 단계가 없어요. 위의 "+ 단계 추가" 를 눌러서 넣어주세요.</div>' : m.steps.map((s, idx) => `
             <div class="edit-row">
               <div class="er-num">${idx + 1}</div>
-              <div class="er-vis">${stepIcons[s.ic] || stepIcons.cup}</div>
+              <div class="er-vis${replacingStepIdx === idx ? ' replacing' : ''}" data-replace-step="${idx}" title="아이콘을 다른 것으로 바꿔요">${stepIcons[s.ic] || stepIcons.cup}</div>
               <div class="er-fields">
                 <input type="text" data-step-field="t" data-idx="${idx}" value="${esc(s.t)}" placeholder="단계 설명">
               </div>
@@ -2109,10 +2129,16 @@
 
     modalEl.querySelector('#btnAddIng').addEventListener('click', () => {
       ingPickerOpen = !ingPickerOpen;
+      replacingIngIdx = null;
+      stepPickerOpen = false;
+      replacingStepIdx = null;
       renderModal();
     });
     modalEl.querySelector('#btnAddStep').addEventListener('click', () => {
       stepPickerOpen = !stepPickerOpen;
+      replacingStepIdx = null;
+      ingPickerOpen = false;
+      replacingIngIdx = null;
       renderModal();
     });
 
@@ -2120,8 +2146,14 @@
       modalEl.querySelectorAll('[data-ing-idx]').forEach(b => {
         b.addEventListener('click', (e) => {
           const idx = +e.currentTarget.dataset.ingIdx;
-          editingMenu.ings.push(clone(ING_GALLERY[idx]));
+          const picked = clone(ING_GALLERY[idx]);
+          if (replacingIngIdx !== null && editingMenu.ings[replacingIngIdx]) {
+            editingMenu.ings[replacingIngIdx].vis = picked.vis;
+          } else {
+            editingMenu.ings.push(picked);
+          }
           ingPickerOpen = false;
+          replacingIngIdx = null;
           renderModal();
         });
       });
@@ -2130,12 +2162,51 @@
       modalEl.querySelectorAll('[data-step-idx]').forEach(b => {
         b.addEventListener('click', (e) => {
           const idx = +e.currentTarget.dataset.stepIdx;
-          editingMenu.steps.push(clone(STEP_PALETTE[idx]));
+          const picked = clone(STEP_PALETTE[idx]);
+          if (replacingStepIdx !== null && editingMenu.steps[replacingStepIdx]) {
+            const current = editingMenu.steps[replacingStepIdx];
+            editingMenu.steps[replacingStepIdx] = { ...picked, t: current.t };
+          } else {
+            editingMenu.steps.push(picked);
+          }
           stepPickerOpen = false;
+          replacingStepIdx = null;
           renderModal();
         });
       });
     }
+
+    // Click a visual preview to replace it
+    modalEl.querySelectorAll('[data-replace-ing]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const idx = +e.currentTarget.dataset.replaceIng;
+        if (replacingIngIdx === idx) {
+          replacingIngIdx = null; ingPickerOpen = false;
+        } else {
+          replacingIngIdx = idx; ingPickerOpen = true; stepPickerOpen = false;
+        }
+        renderModal();
+        if (replacingIngIdx !== null) {
+          const picker = modalEl.querySelector('#ingPicker');
+          if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+    modalEl.querySelectorAll('[data-replace-step]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const idx = +e.currentTarget.dataset.replaceStep;
+        if (replacingStepIdx === idx) {
+          replacingStepIdx = null; stepPickerOpen = false;
+        } else {
+          replacingStepIdx = idx; stepPickerOpen = true; ingPickerOpen = false;
+        }
+        renderModal();
+        if (replacingStepIdx !== null) {
+          const picker = modalEl.querySelector('#stepPicker');
+          if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
   }
 
   function saveMenu() {
