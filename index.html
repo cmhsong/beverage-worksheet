@@ -1757,36 +1757,46 @@
     const items = getEffectiveMenus(currentCat);
     setCatVars(menuEl, currentCat);
     const cards = items.map(b => `
-      <button class="card" type="button" data-id="${esc(b.id)}" role="listitem">
+      <div class="card" data-id="${esc(b.id)}" role="button" tabindex="0" aria-label="${esc(b.name)} 레시피 열기">
         <button class="card-edit" type="button" aria-label="이 메뉴 편집" data-edit-id="${esc(b.id)}">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
         <div class="thumb">${renderThumb(b.thumb || catDefaultThumb[currentCat])}</div>
         <h3>${esc(b.name)}</h3>
         <div class="sub">${esc(b.sub || '')}</div>
-      </button>
+      </div>
     `).join('');
     const addCard = `
-      <button class="card-add" type="button" id="addMenuCard" aria-label="새 메뉴 추가">
+      <div class="card-add" id="addMenuCard" role="button" tabindex="0" aria-label="새 메뉴 추가">
         <div class="plus">+</div>
         <div class="add-label">메뉴 추가</div>
-      </button>
+      </div>
     `;
     menuEl.innerHTML = cards + addCard;
     menuEl.querySelectorAll('.card').forEach(c => {
-      c.addEventListener('click', (e) => {
+      const open = (e) => {
         if (e.target.closest('.card-edit')) return;
         openRecipe(c.dataset.id);
+      };
+      c.addEventListener('click', open);
+      c.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); }
       });
     });
-    menuEl.querySelectorAll('.card-edit').forEach(b => {
-      b.addEventListener('click', (e) => {
+    menuEl.querySelectorAll('.card-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openEditModal('edit', currentCat, b.dataset.editId);
+        openEditModal('edit', currentCat, btn.dataset.editId);
       });
     });
     const addCardEl = document.getElementById('addMenuCard');
-    if (addCardEl) addCardEl.addEventListener('click', () => openEditModal('add', currentCat));
+    if (addCardEl) {
+      const openAdd = () => openEditModal('add', currentCat);
+      addCardEl.addEventListener('click', openAdd);
+      addCardEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAdd(); }
+      });
+    }
   }
 
   /* ============ Recipe view ============ */
